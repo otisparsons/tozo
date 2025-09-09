@@ -1,0 +1,58 @@
+[project]
+name = "tozo"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Otis Parsons", email = "ocparsons@gmail.com"},
+]
+dependencies = []
+requires-python = "==3.13.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
+
+[tool.pdm.scripts]
+format-black = "black src/ tests/"
+format-djhtml = "djhtml src/backend/templates -t 2 --in-place"
+format-isort = "isort src tests"
+format = {composite = ["format-black", "format-djhtml", "format-isort"]}
+lint-bandit = "bandit -r src/"
+lint-black = "black --check --diff src/ tests/"
+lint-djhtml = "djhtml src/backend/templates -t 2 --check"
+lint-flake8 = "flake8 src/ tests/"
+lint-isort = "isort --check --diff src tests"
+lint-mypy = "mypy src/backend tests"
+lint-vulture = "vulture src"
+lint = {composite = ["lint-bandit", "lint-black", "lint-djhtml", "lint-flake8", "lint-isort, "lint-mypy", "lint-vulture"]}
+test = "pytest tests/"
+
+[tool.black]
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+addopts = "--showlocals"
+asyncio_mode = "auto"
+pythonpath = ["src"]
+
+[tool.vulture]
+min_confidence = 100
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "isort>=6.0.1",
+    "djhtml>=3.0.9",
+    "mypy>=1.17.1",
+    "flake8>=7.3.0",
+    "bandit>=1.8.6",
+    "vulture>=2.14",
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.1.0",
+]
+
