@@ -13,23 +13,22 @@ jobs:
 
     steps:
       - name: Install Terraform
-
         run: |
           sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
           sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
           sudo apt-get update && sudo apt-get install terraform
 
-          - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-          - name: Initialise Terraform
-          run: terraform init
+      - name: Initialise Terraform
+        run: terraform init
 
-          - name: Check for formatting
-          run: terraform fmt --check=true --recursive
+      - name: Check the formatting
+        run: terraform fmt --check=true --recursive
 
-          - name: Validate the code
-          run: terraform validate
+      - name: Validate the code
+        run: terraform validate
 
   backend:
     runs-on: ubuntu-latest
@@ -44,12 +43,11 @@ jobs:
           POSTGRES_USER: tozo
           POSTGRES_PASSWORD: tozo
           POSTGRES_HOST_AUTH_METHOD: "trust"
-          options: >-
-            --health-cmd pg_isready
-            --health-interval 10s
-            --health-interval 5s
-            --health-timeout 5s
-            --health-retries 5
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     defaults:
       run:
