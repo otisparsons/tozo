@@ -5,18 +5,68 @@ description = "Default template for PDM package"
 authors = [
     {name = "Otis Parsons", email = "ocparsons@gmail.com"},
 ]
-dependencies = []
-requires-python = "==3.13.*"
-readme = "README.md"
-license = {text = "MIT"}
+dependencies = [
+    "quart>=0.18.0",
+    "quart-auth>=0.7.0",
+    "bcrypt>=3.2.2",
+    "zxcvbn>=4.4.28",
+    "itsdangerous>=2.1.2",
+    "quart-rate-limiter>=0.7.0",
+    "pydantic[email]>=1.9.1",
+    "quart-schema>=0.12.0",
+    "quart-db>=0.2.0",
+    "httpx>=0.23.0",
+    "disposable-email-domains>=0.0.79",
+    "pyotp>=2.6.0",
+]
+requires-python = ">=3.12"
+license = {text = "Private"}
+[project.optional-dependencies]
 
+[build-system]
+requires = ["pdm-pep517>=1.0.0"]
+build-backend = "pdm.pep517.api"
 
+[tool]
 [tool.pdm]
-distribution = false
+[tool.pdm.dev-dependencies]
+dev = [
+    "black>=22.6.0",
+    "isort>=5.10.1",
+    "mypy>=0.971",
+    "flake8>=4.0.1",
+    "bandit>=1.7.4",
+    "vulture>=2.5",
+    "pytest>=7.1.2",
+    "pytest-asyncio>=0.19.0",
+    "djhtml>=1.5.2",
+    "setuptools>=63.2.0",
+    "freezegun>=1.2.1",
+    "pip-audit>=2.4.2",
+]
+
+[tool.black]
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+
+[tool.vulture]
+min_confidence = 100
+
+[tool.pytest.ini_options]
+addopts = "--showlocals"
+asyncio_mode = "auto"
+pythonpath = ["src"]
+
+[[tool.mypy.overrides]]
+module =["h11"]
+ignore_missing_imports = true
 
 [tool.pdm.scripts]
+audit = "pip-audit"
 format-black = "black src/ tests/"
-format-djhtml = "djhtml src/backend/templates -t 2 --in-place"
+format-djhtml = "djhtml src/backend/templates -t 2"
 format-isort = "isort src tests"
 format = {composite = ["format-black", "format-djhtml", "format-isort"]}
 lint-bandit = "bandit -r src/"
@@ -26,33 +76,8 @@ lint-flake8 = "flake8 src/ tests/"
 lint-isort = "isort --check --diff src tests"
 lint-mypy = "mypy src/backend tests"
 lint-vulture = "vulture src"
-lint = {composite = ["lint-bandit", "lint-black", "lint-djhtml", "lint-flake8", "lint-isort, "lint-mypy", "lint-vulture"]}
-test = "pytest tests/"
-
-[tool.black]
-target-version = ["py310"]
-
-[tool.isort]
-profile = "black"
-
-[tool.pytest.ini_options]
-addopts = "--showlocals"
-asyncio_mode = "auto"
-pythonpath = ["src"]
-
-[tool.vulture]
-min_confidence = 100
-
-[dependency-groups]
-dev = [
-    "black>=25.1.0",
-    "isort>=6.0.1",
-    "djhtml>=3.0.9",
-    "mypy>=1.17.1",
-    "flake8>=7.3.0",
-    "bandit>=1.8.6",
-    "vulture>=2.14",
-    "pytest>=8.4.2",
-    "pytest-asyncio>=1.1.0",
-]
-
+lint = {composite = ["lint-bandit", "lint-black", "lint-djhtml", "lint-flake8", "lint-isort", "lint-mypy", "lint-vulture"]}
+start = {cmd = "quart --app src/backend/run.py run --port 5050", env_file = "development.env"}
+recreate-db-base = "quart --app src/backend/run.py recreate_db"
+recreate-db = {composite = ["recreate-db-base"], env_file = "development.env"}
+test = {composite = ["recreate-db-base", "pytest tests/"], env_file = "testing.env"}
