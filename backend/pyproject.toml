@@ -5,7 +5,7 @@ description = "Default template for PDM package"
 authors = [
     {name = "Otis Parsons", email = "ocparsons@gmail.com"},
 ]
-dependencies = []
+dependencies = ["quart>=0.20.0"]
 requires-python = "==3.13.*"
 readme = "README.md"
 license = {text = "MIT"}
@@ -13,6 +13,8 @@ license = {text = "MIT"}
 
 [tool.pdm]
 distribution = false
+
+
 
 [tool.pdm.scripts]
 format-black = "black src/ tests/"
@@ -26,8 +28,10 @@ lint-flake8 = "flake8 src/ tests/"
 lint-isort = "isort --check --diff src tests"
 lint-mypy = "mypy src/backend tests"
 lint-vulture = "vulture src"
-lint = {composite = ["lint-bandit", "lint-black", "lint-djhtml", "lint-flake8", "lint-isort, "lint-mypy", "lint-vulture"]}
-test = "pytest tests/"
+lint = {composite = ["lint-bandit", "lint-black", "lint-djhtml", "lint-flake8", "lint-isort", "lint-mypy", "lint-vulture"]}
+test = {cmd = "pytest tests/", env_file = "testing.env"}
+start = {cmd = "quart --app src/backend/run.py run --port 5050", env_file = "development.env"}
+
 
 [tool.black]
 target-version = ["py310"]
