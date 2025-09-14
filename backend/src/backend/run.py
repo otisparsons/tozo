@@ -6,6 +6,8 @@ from quart import ResponseReturnValue
 
 from backend.lib.api_error import APIError
 
+from quart_auth import AuthManager 
+
 app = Quart(__name__)
 app.config.from_prefixed_env(prefix="TOZO")
 
@@ -16,3 +18,5 @@ async def handle_api_error(error: APIError) -> ResponseReturnValue: return {"cod
 
 @app.errorhandler(500)
 async def handle_generic_error(error: Exception) -> ResponseReturnValue: return {"code": "INTERNAL_SERVER_ERROR"}, 500
+
+auth_manager = AuthManager(app)
