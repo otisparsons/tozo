@@ -10,15 +10,12 @@ requires-python = "==3.13.*"
 readme = "README.md"
 license = {text = "MIT"}
 
-
 [tool.pdm]
 distribution = false
 
-
-
 [tool.pdm.scripts]
 format-black = "black src/ tests/"
-format-djhtml = "djhtml src/backend/templates -t 2 --in-place"
+format-djhtml = "djhtml src/backend/templates -t 2"
 format-isort = "isort src tests"
 format = {composite = ["format-black", "format-djhtml", "format-isort"]}
 lint-bandit = "bandit -r src/"
@@ -33,8 +30,6 @@ start = {cmd = "quart --app src/backend/run.py run --port 5050", env_file = "dev
 recreate-db-base = "quart --app src/backend/run.py recreate_db"
 recreate-db = {composite = ["recreate-db-base"], env_file = "development.env"}
 test = {composite = ["recreate-db-base", "pytest tests/"], env_file = "testing.env"}
-
-
 
 [tool.black]
 target-version = ["py310"]

@@ -1,26 +1,30 @@
-from quart import Quart
-
-from backend.blueprints.control import blueprint as control_blueprint
-
-from quart import ResponseReturnValue
-
-from backend.lib.api_error import APIError
-
-from quart_auth import QuartAuth
-from quart_rate_limiter import RateLimiter
-from quart_rate_limiter import RateLimitExceeded
-from quart_schema import QuartSchema
-from quart_schema import RequestSchemaValidationError
-from quart_db import QuartDB
+import logging
 import os
 from subprocess import call  # nosec
 from urllib.parse import urlparse
-import logging
+
+from quart import Quart, Response, ResponseReturnValue
+from backend.blueprints.control import blueprint as control_blueprint
+from quart_auth import QuartAuth
+from quart_db import QuartDB
+from quart_rate_limiter import RateLimiter, RateLimitExceeded
+from quart_schema import QuartSchema, RequestSchemaValidationError
+
+from backend.lib.api_error import APIError
+
+
+logging.basicConfig(level=logging.INFO)
 
 app = Quart(__name__)
 app.config.from_prefixed_env(prefix="TOZO")
 
+auth_manager = QuartAuth(app)
+quart_db = QuartDB(app)
+rate_limiter = RateLimiter(app)
+schema = QuartSchema(app, convert_casing=True)
+
 app.register_blueprint(control_blueprint)
+
 
 
 @app.errorhandler(APIError)  # type: ignore
@@ -33,19 +37,11 @@ async def handle_generic_error(error: Exception) -> ResponseReturnValue:
     return {"code": "INTERNAL_SERVER_ERROR"}, 500
 
 
-auth_manager = QuartAuth(app)
-
-rate_limiter = RateLimiter(app)
-
-
 @app.errorhandler(RateLimitExceeded)  # type: ignore
 async def handle_rate_limit_exceeded_error(
     error: RateLimitExceeded,
 ) -> ResponseReturnValue:
-    return {}, error.get_headers(), 429
-
-
-schema = QuartSchema(app, convert_casing=True)
+    return {}, 429, error.get_headers()
 
 
 @app.errorhandler(RequestSchemaValidationError)  # type: ignore
@@ -57,7 +53,6 @@ async def handle_request_validation_error(
     else:
         return {"errors": error.validation_error.json()}, 400
 
-    quart_db = QuartDB(app)
 
 
 @app.cli.command("recreate_db")
@@ -94,4 +89,3 @@ def recreate_db() -> None:
         ]
     )
 
-    logging.basicConfig(level=logging.INFO)

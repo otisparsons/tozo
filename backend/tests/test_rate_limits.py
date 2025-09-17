@@ -5,7 +5,7 @@ from quart_rate_limiter import (
 
 from backend.run import app
 
-IGNORED_ENDPOINTS = {"static", "openapi", "redoc_ui", "swagger_ui"}
+IGNORED_ENDPOINTS = {"static", "openapi", "redoc_ui","scalar_ui", "swagger_ui"}
 
 
 def test_routes_have_rate_limits() -> None:
@@ -13,13 +13,15 @@ def test_routes_have_rate_limits() -> None:
         endpoint = rule.endpoint
 
         exempt = getattr(
-            app.view_function[endpoint],
+            app.view_functions[endpoint],
             QUART_RATE_LIMITER_EXEMPT_ATTRIBUTE,
             False,
         )
         if not exempt and endpoint not in IGNORED_ENDPOINTS:
             rate_limits = getattr(
-                app.view_functions[endpoint], QUART_RATE_LIMITER_LIMITS_ATTRIBUTE, []
+                app.view_functions[endpoint], 
+                QUART_RATE_LIMITER_LIMITS_ATTRIBUTE, 
+                [],
             )
 
             assert rate_limits != []
