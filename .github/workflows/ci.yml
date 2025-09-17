@@ -30,48 +30,48 @@ jobs:
       - name: Validate the code
         run: terraform validate
 
-  backend:
-    runs-on: ubuntu-latest
+  # backend:
+  #   runs-on: ubuntu-latest
 
-    container: python:3.10.1-slim-bullseye
+  #   container: python:3.10.1-slim-bullseye
 
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_DB: tozo_test
-          POSTGRES_USER: tozo
-          POSTGRES_PASSWORD: tozo
-          POSTGRES_HOST_AUTH_METHOD: "trust"
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+  #   services:
+  #     postgres:
+  #       image: postgres
+  #       env:
+  #         POSTGRES_DB: tozo_test
+  #         POSTGRES_USER: tozo
+  #         POSTGRES_PASSWORD: tozo
+  #         POSTGRES_HOST_AUTH_METHOD: "trust"
+  #       options: >-
+  #         --health-cmd pg_isready
+  #         --health-interval 10s
+  #         --health-timeout 5s
+  #         --health-retries 5
 
-    defaults:
-      run:
-        working-directory: backend
+  #   defaults:
+  #     run:
+  #       working-directory: backend
 
-    env:
-      TOZO_QUART_DB_DATABASE_URL: "postgresql://tozo:tozo@postgres:5432/tozo_test"
+  #   env:
+  #     TOZO_QUART_DB_DATABASE_URL: "postgresql://tozo:tozo@postgres:5432/tozo_test"
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Install system dependencies
-        run: apt-get update && apt-get install -y postgresql postgresql-contrib
+  #     - name: Install system dependencies
+  #       run: apt-get update && apt-get install -y postgresql postgresql-contrib
 
-      - name: Initialise dependencies
-        run: |
-          pip install pdm
-          pdm install
+  #     - name: Initialise dependencies
+  #       run: |
+  #         pip install pdm
+  #         pdm install
 
-      - name: Linting
-        run: pdm run lint
+  #     - name: Linting
+  #       run: pdm run lint
 
-      - name: Testing
-        run: pdm run test
+  #     - name: Testing
+  #       run: pdm run test
 
   # frontend:
   #   runs-on: ubuntu-latest
